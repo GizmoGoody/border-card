@@ -3,10 +3,19 @@ import { property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import "./border-card-editor";
-import { CARD_TYPE, CARD_VERSION, DOCS_URL, EDITOR_TYPE } from "./const";
+import { CARD_TYPE, CARD_VERSION, DEFAULT_BORDER, DEFAULT_PROGRESS, DOCS_URL, EDITOR_TYPE } from "./const";
 import { cardStyles, registerProgressProperties } from "./styles";
 import type { BorderCardConfig, HomeAssistant, HuiCard, LovelaceGridOptions, ResolvedConfig } from "./types";
-import { computeCssColor, computePercent, dimColor, formatText, resolveConfig } from "./utils";
+import {
+  computePercent,
+  dimColor,
+  formatText,
+  referencedEntities,
+  resolveColor,
+  resolveConfig,
+  resolveNumber,
+  toCssColor,
+} from "./utils";
 
 registerProgressProperties();
 
@@ -25,6 +34,8 @@ export class BorderCard extends LitElement {
 
   private _cardKey?: string;
 
+  private _entities: string[] = [];
+
   static getConfigElement(): HTMLElement {
     return document.createElement(EDITOR_TYPE);
   }
@@ -40,6 +51,7 @@ export class BorderCard extends LitElement {
     if (!config.card) throw new Error("Card configuration is required");
 
     this._config = resolveConfig(config);
+    this._entities = referencedEntities(this._config);
 
     // Only hand the wrapped card a new config when it actually changed, so it is not rebuilt needlessly.
     const key = JSON.stringify(config.card);
@@ -56,8 +68,7 @@ export class BorderCard extends LitElement {
     if (this._card) this._card.hass = hass;
 
     // HA replaces a state object only when it changes, so an identity check is enough.
-    const entity = this._config?.progress.enabled ? this._config.progress.entity : undefined;
-    if (!previous || (entity && previous.states[entity] !== hass.states[entity])) {
+    if (!previous || this._entities.some((id) => previous.states[id] !== hass.states[id])) {
       this.requestUpdate();
     }
   }
@@ -85,12 +96,17 @@ export class BorderCard extends LitElement {
     return card;
   }
 
+  /** The border color, from a fixed value or an entity, falling back to the default when it is not a color. */
+  private _borderColor(): string {
+    return resolveColor(this._config!.border.color, this._hass) ?? toCssColor(DEFAULT_BORDER.color)!;
+  }
+
   protected render() {
     if (!this._config) return nothing;
     const { border, progress } = this._config;
 
-    const thickness = Number(border.thickness) || 0;
-    const color = computeCssColor(border.color);
+    const thickness = Math.max(0, resolveNumber(border.thickness, this._hass, 0));
+    const color = this._borderColor();
 
     // With progress on, the ring draws the whole border (fill and track), so the base stays empty.
     const base = progress.enabled ? "transparent" : color;
@@ -115,19 +131,28 @@ export class BorderCard extends LitElement {
   }
 
   private _trackColor(): string {
-    const { border, progress } = this._config!;
-    if (progress.track === "match") return dimColor(computeCssColor(border.color));
-    if (progress.track === "custom") return dimColor(computeCssColor(progress.track_color ?? border.color));
+    const { progress } = this._config!;
+    if (progress.track === "match") return dimColor(this._borderColor());
+    if (progress.track === "custom") {
+      return dimColor(resolveColor(progress.track_color, this._hass) ?? this._borderColor());
+    }
     return "transparent";
   }
 
   private _renderProgress(thickness: number) {
-    const progress = this._config!.progress;
-    const stateObj = progress.entity ? this._hass?.states[progress.entity] : undefined;
-    const percent = computePercent(progress, stateObj);
+    const { progress } = this._config!;
+    const hass = this._hass;
+    const num = (value: number | string, fallback: number) => resolveNumber(value, hass, fallback);
+
+    const stateObj = progress.entity ? hass?.states[progress.entity] : undefined;
+    const raw = progress.attribute ? stateObj?.attributes[progress.attribute] : stateObj?.state;
+    const min = num(progress.min_value, DEFAULT_PROGRESS.min_value as number);
+    const max = num(progress.max_value, DEFAULT_PROGRESS.max_value as number);
+    const percent = stateObj ? computePercent(raw, min, max) : 0;
 
     // The fill and the track stay inside start..end. Clockwise grows from the start, counterclockwise from the end.
-    const total = progress.end - progress.start;
+    const start = num(progress.start, DEFAULT_PROGRESS.start as number);
+    const total = num(progress.end, DEFAULT_PROGRESS.end as number) - start;
     const fill = (percent / 100) * total;
 
     const { text } = progress;
@@ -137,7 +162,7 @@ export class BorderCard extends LitElement {
           ? html`<div
               class=${classMap({ ring: true, ccw: progress.direction === "counterclockwise" })}
               style=${styleMap({
-                "--bc-start": `${progress.start}deg`,
+                "--bc-start": `${start}deg`,
                 "--bc-total": `${total}deg`,
                 "--bc-track": this._trackColor(),
                 "--border-card-fill": `${fill}deg`,
@@ -149,7 +174,7 @@ export class BorderCard extends LitElement {
         text.enabled
           ? html`<div
               class="text ${text.position}"
-              style=${styleMap({ "--bc-text-color": text.color ? computeCssColor(text.color) : undefined })}
+              style=${styleMap({ "--bc-text-color": resolveColor(text.color, hass) })}
             >
               ${formatText(text.template, percent, stateObj)}
             </div>`

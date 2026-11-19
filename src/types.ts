@@ -35,9 +35,15 @@ export type TextPosition =
   | "bottom-center"
   | "bottom-right";
 
+/** A fixed number, or the entity ID of an input_number (or any entity with a numeric state). */
+export type NumberValue = number | string;
+
+/** A color (theme name, CSS color, or "r, g, b"), or the entity ID of an input_text (or any text entity). */
+export type ColorValue = string;
+
 export interface BorderOptions {
-  color: string;
-  thickness: number;
+  color: ColorValue;
+  thickness: NumberValue;
   glow: boolean;
 }
 
@@ -45,20 +51,20 @@ export interface TextOptions {
   enabled: boolean;
   position: TextPosition;
   template: string;
-  color?: string;
+  color?: ColorValue;
 }
 
 export interface ProgressOptions {
   enabled: boolean;
-  start: number;
-  end: number;
+  start: NumberValue;
+  end: NumberValue;
   entity?: string;
   attribute?: string;
-  min_value: number;
-  max_value: number;
+  min_value: NumberValue;
+  max_value: NumberValue;
   direction: Direction;
   track: Track;
-  track_color?: string;
+  track_color?: ColorValue;
   text: TextOptions;
 }
 
