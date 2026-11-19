@@ -40,26 +40,26 @@ card:
 
 ## Options
 
-| Option | Default | Description |
-| --- | --- | --- |
-| `card` | required | The card to wrap. Any card configuration works. |
-| `border.color` | `#03a9f4` | A theme color name (for example `primary` or `red`) or any CSS color. |
-| `border.thickness` | `4` | Border width in pixels. `0` disables the border. |
-| `border.glow` | `false` | Adds a glow in the border color. |
-| `progress.enabled` | `false` | Shows the border as a progress ring. |
-| `progress.entity` | | The entity that provides the value. |
-| `progress.attribute` | | Use this attribute instead of the entity state. |
-| `progress.min_value` | `0` | The value that shows an empty ring. |
-| `progress.max_value` | `100` | The value that shows a full ring. |
-| `progress.start` | `0` | Start angle in degrees. `0` is the top. |
-| `progress.end` | `360` | End angle in degrees. |
-| `progress.direction` | `clockwise` | `clockwise` fills from the start angle. `counterclockwise` fills from the end angle back toward the start. |
-| `progress.track` | `none` | The unfilled part of the border: `none` (transparent), `match` (dimmed border color), or `custom` (dimmed `track_color`). |
-| `progress.track_color` | | The track color when `track` is `custom`. |
-| `progress.text.enabled` | `true` | Shows a text label. |
-| `progress.text.position` | `bottom-right` | `top-left`, `top-center`, `top-right`, `center-left`, `center`, `center-right`, `bottom-left`, `bottom-center`, or `bottom-right`. |
-| `progress.text.template` | `{value}%` | `{value}` is the progress percentage, `{state}` is the entity state, and `{attribute_name}` is any attribute. |
-| `progress.text.color` | theme text color | A theme color name or any CSS color. |
+| Option                   | Default          | Description                                                                                                                        |
+| ------------------------ | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `card`                   | required         | The card to wrap. Any card configuration works.                                                                                    |
+| `border.color`           | `#03a9f4`        | A theme color name (for example `primary` or `red`) or any CSS color.                                                              |
+| `border.thickness`       | `4`              | Border width in pixels. `0` disables the border.                                                                                   |
+| `border.glow`            | `false`          | Adds a glow in the border color.                                                                                                   |
+| `progress.enabled`       | `false`          | Shows the border as a progress ring.                                                                                               |
+| `progress.entity`        |                  | The entity that provides the value.                                                                                                |
+| `progress.attribute`     |                  | Use this attribute instead of the entity state.                                                                                    |
+| `progress.min_value`     | `0`              | The value that shows an empty ring.                                                                                                |
+| `progress.max_value`     | `100`            | The value that shows a full ring.                                                                                                  |
+| `progress.start`         | `0`              | Start angle in degrees. `0` is the top.                                                                                            |
+| `progress.end`           | `360`            | End angle in degrees.                                                                                                              |
+| `progress.direction`     | `clockwise`      | `clockwise` fills from the start angle. `counterclockwise` fills from the end angle back toward the start.                         |
+| `progress.track`         | `none`           | The unfilled part of the border: `none` (transparent), `match` (dimmed border color), or `custom` (dimmed `track_color`).          |
+| `progress.track_color`   |                  | The track color when `track` is `custom`.                                                                                          |
+| `progress.text.enabled`  | `true`           | Shows a text label.                                                                                                                |
+| `progress.text.position` | `bottom-right`   | `top-left`, `top-center`, `top-right`, `center-left`, `center`, `center-right`, `bottom-left`, `bottom-center`, or `bottom-right`. |
+| `progress.text.template` | `{value}%`       | `{value}` is the progress percentage, `{state}` is the entity state, and `{attribute_name}` is any attribute.                      |
+| `progress.text.color`    | theme text color | A theme color name or any CSS color.                                                                                               |
 
 ## Development
 

@@ -121,9 +121,7 @@ function buildSchema(customTrack: boolean): SchemaItem[] {
             },
           },
         },
-        ...(customTrack
-          ? [{ name: "track_color", label: "Track color", selector: { ui_color: {} } }]
-          : []),
+        ...(customTrack ? [{ name: "track_color", label: "Track color", selector: { ui_color: {} } }] : []),
         TEXT_SCHEMA,
       ],
     },

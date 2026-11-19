@@ -5,13 +5,7 @@ import { styleMap } from "lit/directives/style-map.js";
 import "./border-card-editor";
 import { CARD_TYPE, CARD_VERSION, DOCS_URL, EDITOR_TYPE } from "./const";
 import { cardStyles, registerProgressProperties } from "./styles";
-import type {
-  BorderCardConfig,
-  HomeAssistant,
-  HuiCard,
-  LovelaceGridOptions,
-  ResolvedConfig,
-} from "./types";
+import type { BorderCardConfig, HomeAssistant, HuiCard, LovelaceGridOptions, ResolvedConfig } from "./types";
 import { computeCssColor, computePercent, dimColor, formatText, resolveConfig } from "./utils";
 
 registerProgressProperties();
@@ -101,7 +95,8 @@ export class BorderCard extends LitElement {
     let base = color;
     if (progress.enabled) {
       if (progress.track === "match") base = dimColor(color);
-      else if (progress.track === "custom") base = dimColor(computeCssColor(progress.track_color ?? border.color));
+      else if (progress.track === "custom")
+        base = dimColor(computeCssColor(progress.track_color ?? border.color));
       else base = "transparent";
     }
 
@@ -136,23 +131,27 @@ export class BorderCard extends LitElement {
 
     const { text } = progress;
     return html`
-      ${thickness > 0
-        ? html`<div
-            class="ring"
-            style=${styleMap({
-              "--border-card-from": `${from}deg`,
-              "--border-card-fill": `${fill}deg`,
-            })}
-          ></div>`
-        : nothing}
-      ${text.enabled
-        ? html`<div
-            class="text ${text.position}"
-            style=${styleMap({ "--bc-text-color": text.color ? computeCssColor(text.color) : undefined })}
-          >
-            ${formatText(text.template, percent, stateObj)}
-          </div>`
-        : nothing}
+      ${
+        thickness > 0
+          ? html`<div
+              class="ring"
+              style=${styleMap({
+                "--border-card-from": `${from}deg`,
+                "--border-card-fill": `${fill}deg`,
+              })}
+            ></div>`
+          : nothing
+      }
+      ${
+        text.enabled
+          ? html`<div
+              class="text ${text.position}"
+              style=${styleMap({ "--bc-text-color": text.color ? computeCssColor(text.color) : undefined })}
+            >
+              ${formatText(text.template, percent, stateObj)}
+            </div>`
+          : nothing
+      }
     `;
   }
 }
