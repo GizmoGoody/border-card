@@ -65,7 +65,7 @@ card:
 
 Any number option (`border.thickness`, `progress.start`, `progress.end`, `progress.min_value`, `progress.max_value`) also takes an entity ID, such as an `input_number`. The card then uses that entity's state.
 
-Any color option (`border.color`, `progress.track_color`, `progress.text.color`) also takes an entity ID, such as an `input_text`. The entity's state can be a theme color name (`red`, `primary`), any CSS color (`transparent`, `#ff9800`, `rgb(255, 152, 0)`, `hsl(36, 100%, 50%)`), or three numbers (`255, 152, 0`). When the state is not a color, the card uses the default color.
+Any color option (`border.color`, `progress.track_color`, `progress.text.color`) also takes an entity ID, such as an `input_text`. The entity's state can be a theme color name (`red`, `primary`), any CSS color (`transparent`, `#ff9800`, `rgb(255, 152, 0)`, `hsl(36, 100%, 50%)`), or three numbers (`255, 152, 0`). Hex colors work with or without `#` (`#ff9800`, `ff9800`, `#f80`, or `#ff980080` with transparency). In YAML, put quotes around a hex color that starts with `#`, because `#` starts a comment. When the state is not a color, the card uses the default color.
 
 ```yaml
 type: custom:border-card
