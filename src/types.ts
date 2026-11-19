@@ -24,6 +24,7 @@ export interface LovelaceGridOptions {
 
 export type Direction = "clockwise" | "counterclockwise";
 export type Track = "none" | "match" | "custom";
+export type Effect = "none" | "glow" | "pulse" | "shimmer" | "rainbow";
 export type TextPosition =
   | "top-left"
   | "top-center"
@@ -44,7 +45,9 @@ export type ColorValue = string;
 export interface BorderOptions {
   color: ColorValue;
   thickness: NumberValue;
-  glow: boolean;
+  effect?: Effect;
+  /** Older option, the same as effect: glow. */
+  glow?: boolean;
 }
 
 export interface TextOptions {

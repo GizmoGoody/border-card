@@ -9,7 +9,6 @@ export const DOCS_URL = "https://github.com/GizmoGoody/border-card";
 export const DEFAULT_BORDER: BorderOptions = {
   color: "#03a9f4",
   thickness: 4,
-  glow: false,
 };
 
 export const DEFAULT_PROGRESS: ProgressOptions = {

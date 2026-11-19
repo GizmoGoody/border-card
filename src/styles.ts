@@ -5,7 +5,7 @@ import { css } from "lit";
  * @property does not work inside a shadow root, so this registers them once on the document.
  */
 export function registerProgressProperties(): void {
-  for (const name of ["--border-card-fill"]) {
+  for (const name of ["--border-card-fill", "--border-card-spin"]) {
     try {
       CSS.registerProperty({ name, syntax: "<angle>", inherits: false, initialValue: "0deg" });
     } catch {
@@ -27,21 +27,86 @@ export const cardStyles = css`
     height: 100%;
     padding: var(--bc-thickness);
     border-radius: var(--bc-radius);
-    background: var(--bc-base);
     box-shadow: var(--ha-card-box-shadow, 0 2px 6px rgba(0, 0, 0, 0.2));
     overflow: hidden;
   }
 
-  .container.glow {
+  .container.effect-glow {
     box-shadow:
       var(--ha-card-box-shadow, 0 2px 6px rgba(0, 0, 0, 0.2)),
       0 0 20px var(--bc-color);
   }
 
+  .container.effect-pulse {
+    animation: bc-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes bc-pulse {
+    0%,
+    100% {
+      box-shadow:
+        var(--ha-card-box-shadow, 0 2px 6px rgba(0, 0, 0, 0.2)),
+        0 0 4px var(--bc-color);
+    }
+    50% {
+      box-shadow:
+        var(--ha-card-box-shadow, 0 2px 6px rgba(0, 0, 0, 0.2)),
+        0 0 24px var(--bc-color);
+    }
+  }
+
+  .effect-rainbow .frame,
+  .effect-rainbow .ring {
+    animation: bc-hue 6s linear infinite;
+  }
+
+  @keyframes bc-hue {
+    to {
+      filter: hue-rotate(360deg);
+    }
+  }
+
   .container.no-border {
     padding: 0;
-    background: transparent;
     box-shadow: none;
+  }
+
+  /* A layer the shape of the border: the whole box, with the content area masked out. */
+  .band {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    padding: var(--bc-thickness);
+    border-radius: inherit;
+    pointer-events: none;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+  }
+
+  .frame {
+    background: var(--bc-base);
+  }
+
+  .shine {
+    z-index: 2;
+    background: conic-gradient(
+      from var(--border-card-spin),
+      transparent 0 270deg,
+      rgba(255, 255, 255, 0.8) 330deg,
+      transparent 360deg
+    );
+    animation: bc-spin 3s linear infinite;
+  }
+
+  @keyframes bc-spin {
+    to {
+      --border-card-spin: 360deg;
+    }
   }
 
   /* Concentric corners: the inner radius is the outer radius minus the border thickness. */
@@ -60,13 +125,7 @@ export const cardStyles = css`
   }
 
   .ring {
-    position: absolute;
-    inset: 0;
     z-index: 2;
-    box-sizing: border-box;
-    padding: var(--bc-thickness);
-    border-radius: inherit;
-    pointer-events: none;
     /* A stop position of 0 snaps to the previous stop, so each color starts where the last one ends. */
     background: conic-gradient(
       from var(--bc-start),
@@ -74,13 +133,6 @@ export const cardStyles = css`
       var(--bc-track) 0 var(--bc-total),
       transparent 0
     );
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      linear-gradient(#000 0 0) content-box exclude,
-      linear-gradient(#000 0 0);
     transition: --border-card-fill 0.5s ease;
   }
 
@@ -148,6 +200,10 @@ export const cardStyles = css`
   @media (prefers-reduced-motion: reduce) {
     .ring {
       transition: none;
+    }
+    .container,
+    .band {
+      animation: none !important;
     }
   }
 `;
