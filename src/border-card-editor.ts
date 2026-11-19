@@ -62,7 +62,7 @@ function withEntity(field: SchemaItem, domains: string[]): SchemaItem {
       field,
       {
         name: `${field.name}${ENTITY_SUFFIX}`,
-        label: "From entity",
+        label: "",
         selector: { entity: { filter: { domain: domains } } },
       },
     ],
@@ -82,7 +82,7 @@ function buildSchema(customTrack: boolean): SchemaItem[] {
       name: "",
       flatten: true,
       expanded: true,
-      title: "Border card settings",
+      title: "Border card",
       schema: [
         color("color", "Border color"),
         number(
@@ -131,7 +131,7 @@ function buildSchema(customTrack: boolean): SchemaItem[] {
                   mode: "dropdown",
                   options: [
                     { value: "none", label: "None" },
-                    { value: "match", label: "Match border" },
+                    { value: "match", label: "Match" },
                     { value: "custom", label: "Custom" },
                   ],
                 },
