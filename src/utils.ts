@@ -67,7 +67,11 @@ export function resolveColor(value: ColorValue | undefined, hass?: HomeAssistant
 }
 
 /** Reads a number value, following it to an entity's state when it is an entity ID. */
-export function resolveNumber(value: NumberValue | undefined, hass: HomeAssistant | undefined, fallback: number) {
+export function resolveNumber(
+  value: NumberValue | undefined,
+  hass: HomeAssistant | undefined,
+  fallback: number,
+) {
   if (typeof value === "number") return value;
   const text = isEntityId(value) ? hass?.states[value]?.state : value;
   const number = parseFloat(text ?? "");
