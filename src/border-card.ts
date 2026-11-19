@@ -5,7 +5,15 @@ import { styleMap } from "lit/directives/style-map.js";
 import "./border-card-editor";
 import { CARD_TYPE, CARD_VERSION, DEFAULT_BORDER, DEFAULT_PROGRESS, DOCS_URL, EDITOR_TYPE } from "./const";
 import { cardStyles, registerProgressProperties } from "./styles";
-import type { BorderCardConfig, HomeAssistant, HuiCard, LovelaceGridOptions, ResolvedConfig } from "./types";
+import type {
+  BorderCardConfig,
+  CardHelpers,
+  HomeAssistant,
+  LovelaceCard,
+  LovelaceCardConfig,
+  LovelaceGridOptions,
+  ResolvedConfig,
+} from "./types";
 import {
   computePercent,
   dimColor,
@@ -19,18 +27,27 @@ import {
 
 registerProgressProperties();
 
+/** HA's card helpers, loaded once. They create the wrapped card the same way HA's conditional card does. */
+let cardHelpers: CardHelpers | undefined;
+const cardHelpersReady = window.loadCardHelpers?.().then((helpers) => (cardHelpers = helpers));
+
 export class BorderCard extends LitElement {
   static styles = cardStyles;
 
   /** Set by HA when the card is shown in the editor preview. */
   @property({ type: Boolean }) preview = false;
 
+  /** Set by HA to "grid" in sections views; passed on to the wrapped card. */
+  @property({ attribute: false }) layout?: string;
+
   @state() private _config?: ResolvedConfig;
 
   private _hass?: HomeAssistant;
 
-  /** HA's own card container; it creates, lazy-loads and error-handles the wrapped card. */
-  private _card?: HuiCard;
+  /** The wrapped card, created by HA's card helpers (which also handle loading and errors). */
+  private _card?: LovelaceCard;
+
+  private _cardConfig?: LovelaceCardConfig;
 
   private _cardKey?: string;
 
@@ -57,8 +74,8 @@ export class BorderCard extends LitElement {
     const key = JSON.stringify(config.card);
     if (key !== this._cardKey) {
       this._cardKey = key;
-      this._card ??= this._createCard();
-      this._card.config = config.card;
+      this._cardConfig = config.card;
+      this._createCard();
     }
   }
 
@@ -81,19 +98,42 @@ export class BorderCard extends LitElement {
     return this._card?.getCardSize?.() ?? 1;
   }
 
+  /** The wrapped card's sizing, so the Layout tab and sections treat this card like the card inside it. */
   getGridOptions(): LovelaceGridOptions {
-    return this._card?.getGridOptions?.() ?? {};
+    const own = this._card?.getGridOptions?.() ?? {};
+    const configured = (this._cardConfig?.grid_options as LovelaceGridOptions | undefined) ?? {};
+    return { ...own, ...configured };
   }
 
   protected updated(): void {
-    if (this._card) this._card.preview = this.preview;
+    if (this._card) {
+      this._card.preview = this.preview;
+      if (this.layout) this._card.layout = this.layout;
+    }
   }
 
-  private _createCard(): HuiCard {
-    const card = document.createElement("hui-card");
+  private _createCard(): void {
+    const config = this._cardConfig;
+    if (!config) return;
+    if (!cardHelpers) {
+      // Rare: the helpers are not loaded yet. Ask HA to rebuild this card once they are, so its size is read again.
+      cardHelpersReady?.then(() => {
+        this._createCard();
+        this.dispatchEvent(new Event("ll-rebuild", { bubbles: true, composed: true }));
+      });
+      return;
+    }
+    const card = cardHelpers.createCardElement(config);
+    // A custom card that loads later asks to be rebuilt; HA's own containers handle it the same way.
+    card.addEventListener("ll-rebuild", (ev) => {
+      ev.stopPropagation();
+      this._createCard();
+    });
     if (this._hass) card.hass = this._hass;
     card.preview = this.preview;
-    return card;
+    if (this.layout) card.layout = this.layout;
+    this._card = card;
+    this.requestUpdate();
   }
 
   /** The border color, from a fixed value or an entity, falling back to the default when it is not a color. */
