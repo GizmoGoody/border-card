@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: border-card
+          path: dist/border-card.js
+
+  hacs:
+    runs-on: ubuntu-latest
+    steps:
+      # HACS documents this action at @main and publishes no version tags.
+      - uses: hacs/action@main
+        with:
+          category: plugin
+          ignore: brands
