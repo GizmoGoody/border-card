@@ -200,7 +200,11 @@ function toFormData(config: BorderCardConfig): FormData {
   const { border, ...rest } = structuredClone(config);
   const { glow, ...borderOptions } = border ?? {};
   // The older glow option shows as the Glow effect, and saving replaces it with effect.
-  const data: FormData = { ...rest, ...borderOptions, effect: borderOptions.effect ?? (glow ? "glow" : "none") };
+  const data: FormData = {
+    ...rest,
+    ...borderOptions,
+    effect: borderOptions.effect ?? (glow ? "glow" : "none"),
+  };
   for (const path of BINDABLE_PATHS) {
     const parent = parentOf(data, path, false);
     const key = path[path.length - 1];
