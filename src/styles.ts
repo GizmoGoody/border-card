@@ -5,7 +5,7 @@ import { css } from "lit";
  * @property does not work inside a shadow root, so this registers them once on the document.
  */
 export function registerProgressProperties(): void {
-  for (const name of ["--border-card-from", "--border-card-fill"]) {
+  for (const name of ["--border-card-fill"]) {
     try {
       CSS.registerProperty({ name, syntax: "<angle>", inherits: false, initialValue: "0deg" });
     } catch {
@@ -67,10 +67,12 @@ export const cardStyles = css`
     padding: var(--bc-thickness);
     border-radius: inherit;
     pointer-events: none;
+    /* A stop position of 0 snaps to the previous stop, so each color starts where the last one ends. */
     background: conic-gradient(
-      from var(--border-card-from),
-      var(--bc-color) 0deg var(--border-card-fill),
-      transparent var(--border-card-fill)
+      from var(--bc-start),
+      var(--bc-color) 0 var(--border-card-fill),
+      var(--bc-track) 0 var(--bc-total),
+      transparent 0
     );
     -webkit-mask:
       linear-gradient(#000 0 0) content-box,
@@ -79,9 +81,16 @@ export const cardStyles = css`
     mask:
       linear-gradient(#000 0 0) content-box exclude,
       linear-gradient(#000 0 0);
-    transition:
-      --border-card-from 0.5s ease,
-      --border-card-fill 0.5s ease;
+    transition: --border-card-fill 0.5s ease;
+  }
+
+  .ring.ccw {
+    background: conic-gradient(
+      from var(--bc-start),
+      var(--bc-track) 0 calc(var(--bc-total) - var(--border-card-fill)),
+      var(--bc-color) 0 var(--bc-total),
+      transparent 0
+    );
   }
 
   .text {
