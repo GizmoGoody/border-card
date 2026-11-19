@@ -40,7 +40,6 @@ const THEME_COLORS = new Set([
 
 const ENTITY_ID = /^[a-z0-9_]+\.[a-z0-9_]+$/;
 const RGB_TRIPLET = /^[[(]?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*[\])]?$/;
-const BARE_HEX = /^(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
 export function isEntityId(value: unknown): value is string {
   return typeof value === "string" && ENTITY_ID.test(value);
@@ -48,7 +47,7 @@ export function isEntityId(value: unknown): value is string {
 
 /**
  * Turns a color into CSS. Theme names map to theme variables (HA's computeCssColor rule),
- * "r, g, b" becomes rgb(), hex without "#" gets one, and any other valid CSS color (red, transparent, #hex, rgb(), hsl()) is used as is.
+ * "r, g, b" becomes rgb(), and any other valid CSS color (red, transparent, #hex, rgb(), hsl()) is used as is.
  * Returns undefined for anything that is not a color.
  */
 export function toCssColor(value: string): string | undefined {
@@ -57,7 +56,6 @@ export function toCssColor(value: string): string | undefined {
   if (THEME_COLORS.has(color)) return `var(--${color}-color)`;
   const rgb = RGB_TRIPLET.exec(color);
   if (rgb) return `rgb(${rgb[1]}, ${rgb[2]}, ${rgb[3]})`;
-  if (BARE_HEX.test(color)) return `#${color}`;
   return CSS.supports("color", color) ? color : undefined;
 }
 
