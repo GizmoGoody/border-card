@@ -152,7 +152,8 @@ function buildSchema(customTrack: boolean): SchemaItem[] {
                 {
                   name: "template",
                   label: "Template",
-                  helper: "Use {value} for the progress value, {state} for the entity state, or {attribute_name}",
+                  helper:
+                    "Use {value} for the progress value, {state} for the entity state, or {attribute_name}",
                   selector: { text: {} },
                 },
                 color("color", "Text color", "Leave empty to use the theme text color"),
@@ -308,19 +309,21 @@ export class BorderCardEditor extends LitElement {
               @click=${this._togglePicker}
             ></ha-icon-button>
           </div>
-          ${picking
-            ? html`<hui-card-picker
-                .hass=${this.hass}
-                .lovelace=${this.lovelace}
-                @config-changed=${this._cardPicked}
-              ></hui-card-picker>`
-            : html`<hui-card-element-editor
-                .hass=${this.hass}
-                .lovelace=${this.lovelace}
-                .value=${this._config.card}
-                @config-changed=${this._cardChanged}
-                @GUImode-changed=${this._guiModeChanged}
-              ></hui-card-element-editor>`}
+          ${
+            picking
+              ? html`<hui-card-picker
+                  .hass=${this.hass}
+                  .lovelace=${this.lovelace}
+                  @config-changed=${this._cardPicked}
+                ></hui-card-picker>`
+              : html`<hui-card-element-editor
+                  .hass=${this.hass}
+                  .lovelace=${this.lovelace}
+                  .value=${this._config.card}
+                  @config-changed=${this._cardChanged}
+                  @GUImode-changed=${this._guiModeChanged}
+                ></hui-card-element-editor>`
+          }
         </div>
       </div>
     `;
