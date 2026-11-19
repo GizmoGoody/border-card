@@ -25,15 +25,7 @@ export interface LovelaceGridOptions {
 export type Direction = "clockwise" | "counterclockwise";
 export type Track = "none" | "match" | "custom";
 export type Effect =
-  | "none"
-  | "glow"
-  | "pulse"
-  | "breathe"
-  | "flicker"
-  | "shimmer"
-  | "comet"
-  | "chase"
-  | "rainbow";
+  "none" | "glow" | "pulse" | "breathe" | "flicker" | "shimmer" | "comet" | "chase" | "rainbow";
 export type TextPosition =
   | "top-left"
   | "top-center"
