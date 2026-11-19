@@ -55,6 +55,70 @@ export const cardStyles = css`
     }
   }
 
+  .effect-breathe .frame,
+  .effect-breathe .ring {
+    animation: bc-breathe 3s ease-in-out infinite;
+  }
+
+  @keyframes bc-breathe {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  .container.effect-flicker {
+    animation: bc-flicker-glow 4s linear infinite;
+  }
+
+  .effect-flicker .frame,
+  .effect-flicker .ring {
+    animation: bc-flicker 4s linear infinite;
+  }
+
+  @keyframes bc-flicker {
+    0%,
+    19%,
+    21%,
+    23%,
+    25%,
+    54%,
+    56%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    24%,
+    55% {
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes bc-flicker-glow {
+    0%,
+    19%,
+    21%,
+    23%,
+    25%,
+    54%,
+    56%,
+    100% {
+      box-shadow:
+        var(--ha-card-box-shadow, 0 2px 6px rgba(0, 0, 0, 0.2)),
+        0 0 16px var(--bc-color);
+    }
+    20%,
+    24%,
+    55% {
+      box-shadow: var(--ha-card-box-shadow, 0 2px 6px rgba(0, 0, 0, 0.2));
+    }
+  }
+
+  /* Comet and chase run in the border color, so the solid border underneath is dimmed. */
+  .effect-comet .frame,
+  .effect-chase .frame {
+    opacity: 0.3;
+  }
+
   .effect-rainbow .frame,
   .effect-rainbow .ring {
     animation: bc-hue 6s linear infinite;
@@ -90,6 +154,29 @@ export const cardStyles = css`
 
   .frame {
     background: var(--bc-base);
+  }
+
+  .comet {
+    z-index: 2;
+    background: conic-gradient(
+      from var(--border-card-spin),
+      transparent 0 200deg,
+      color-mix(in srgb, var(--bc-color) 10%, transparent) 220deg,
+      var(--bc-color) 350deg,
+      #fff 357deg,
+      transparent 360deg
+    );
+    animation: bc-spin 2.5s linear infinite;
+  }
+
+  .chase {
+    z-index: 2;
+    background: repeating-conic-gradient(
+      from var(--border-card-spin),
+      var(--bc-color) 0 6deg,
+      transparent 6deg 12deg
+    );
+    animation: bc-spin 12s linear infinite;
   }
 
   .shine {

@@ -45,7 +45,7 @@ card:
 | `card`                   | required         | The card to wrap. Any card configuration works.                                                                                    |
 | `border.color`           | `#03a9f4`        | A theme color name (for example `primary` or `red`) or any CSS color.                                                              |
 | `border.thickness`       | `4`              | Border width in pixels. `0` disables the border.                                                                                   |
-| `border.effect`          | `none`           | `none`, `glow`, `pulse` (breathing glow), `shimmer` (light runs around the border), or `rainbow` (cycles colors).                  |
+| `border.effect`          | `none`           | A moving or glowing border. See [Effects](#effects).                                                                               |
 | `progress.enabled`       | `false`          | Shows the border as a progress ring.                                                                                               |
 | `progress.entity`        |                  | The entity that provides the value.                                                                                                |
 | `progress.attribute`     |                  | Use this attribute instead of the entity state.                                                                                    |
@@ -62,6 +62,19 @@ card:
 | `progress.text.color`    | theme text color | A theme color name or any CSS color.                                                                                               |
 
 `border.glow: true` from earlier versions still works and is the same as `effect: glow`.
+
+### Effects
+
+- `glow`: a steady glow in the border color.
+- `pulse`: the glow grows and fades.
+- `breathe`: the border slowly fades in and out.
+- `flicker`: a neon-sign flicker with glow.
+- `shimmer`: a white light runs around the border.
+- `comet`: a bright head with a fading tail runs around the border.
+- `chase`: dashes march around the border, like a marquee.
+- `rainbow`: the border cycles through colors. It has no effect on grey, white, or black borders.
+
+Animations stop when the device is set to reduce motion.
 
 ### Values from entities
 
