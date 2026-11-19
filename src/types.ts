@@ -96,6 +96,7 @@ declare global {
     "hui-card": HuiCard;
   }
   interface Window {
+    loadCardHelpers?: () => Promise<{ createCardElement(config: LovelaceCardConfig): HTMLElement }>;
     customCards?: Array<{
       type: string;
       name: string;
