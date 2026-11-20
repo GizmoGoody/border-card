@@ -5,7 +5,8 @@ import { computePercent, formatText, isEntityId, resolveColor, resolveNumber, to
 // Node has no CSS.supports; this stand-in accepts the color forms the tests use.
 beforeAll(() => {
   globalThis.CSS = {
-    supports: (_property: string, value: string) => /^(#[0-9a-f]{3,8}|rgb\(|hsl\(|transparent$|red$)/i.test(value),
+    supports: (_property: string, value: string) =>
+      /^(#[0-9a-f]{3,8}|rgb\(|hsl\(|transparent$|red$)/i.test(value),
   } as unknown as typeof CSS;
 });
 
