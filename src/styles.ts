@@ -124,6 +124,12 @@ export const cardStyles = css`
     --ha-card-border-width: 0;
   }
 
+  /* The wrapped card fills the space inside the border, so its content stays centered like an unwrapped card. */
+  .inner > * {
+    display: block;
+    height: 100%;
+  }
+
   .ring {
     z-index: 2;
     /* A stop position of 0 snaps to the previous stop, so each color starts where the last one ends. */

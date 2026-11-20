@@ -85,21 +85,22 @@ export interface ResolvedConfig {
   card: LovelaceCardConfig;
 }
 
-/** HA's own card container, used by its stack and conditional cards. */
-export interface HuiCard extends HTMLElement {
-  config?: LovelaceCardConfig;
+/** A dashboard card element, as created by HA's card helpers. */
+export interface LovelaceCard extends HTMLElement {
   hass?: HomeAssistant;
   preview?: boolean;
+  layout?: string;
   getCardSize?(): number | Promise<number>;
   getGridOptions?(): LovelaceGridOptions;
 }
 
+export interface CardHelpers {
+  createCardElement(config: LovelaceCardConfig): LovelaceCard;
+}
+
 declare global {
-  interface HTMLElementTagNameMap {
-    "hui-card": HuiCard;
-  }
   interface Window {
-    loadCardHelpers?: () => Promise<{ createCardElement(config: LovelaceCardConfig): HTMLElement }>;
+    loadCardHelpers?: () => Promise<CardHelpers>;
     customCards?: Array<{
       type: string;
       name: string;
