@@ -64,7 +64,6 @@ card:
 | `progress.text.template` | `{value}%`       | `{value}` is the progress percentage, `{state}` is the entity state, and `{attribute_name}` is any attribute.                      |
 | `progress.text.color`    | theme text color | A theme color name or any CSS color.                                                                                               |
 
-
 ### Effects
 
 - `glow`: a steady glow in the border color.
