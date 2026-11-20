@@ -1,7 +1,7 @@
 import { mdiCodeBraces, mdiListBoxOutline, mdiSwapHorizontal } from "@mdi/js";
 import { LitElement, css, html, nothing } from "lit";
 import { property, query, state } from "lit/decorators.js";
-import { EDITOR_TYPE } from "./const";
+import { DEFAULT_BORDER, DEFAULT_PROGRESS, EDITOR_TYPE } from "./const";
 import type { BorderCardConfig, HomeAssistant, LovelaceCardConfig } from "./types";
 import { isEntityId } from "./utils";
 
@@ -88,7 +88,7 @@ function buildSchema(customTrack: boolean): SchemaItem[] {
         number(
           "thickness",
           "Thickness",
-          { min: 0, max: 50, step: 1, unit_of_measurement: "px" },
+          { min: 0, max: 50, step: 1, mode: "box", unit_of_measurement: "px" },
           "Set to 0 to disable the border",
         ),
         {
@@ -195,16 +195,54 @@ function parentOf(data: FormData, path: string[], create: boolean): FormData | u
   return node;
 }
 
-/** Config to form data: border options move to the top level, and entity IDs move to their "_entity" field. */
+/** Default values, shaped like the form data. The editor shows them, and saving leaves them out of the config. */
+const { text: DEFAULT_TEXT, ...DEFAULT_PROGRESS_OPTIONS } = DEFAULT_PROGRESS;
+const FORM_DEFAULTS: FormData = {
+  ...DEFAULT_BORDER,
+  effect: "none",
+  progress: { ...DEFAULT_PROGRESS_OPTIONS, text: { ...DEFAULT_TEXT } },
+};
+/** Colors are not shown as defaults, because HA's color picker lists theme colors only. */
+const HIDDEN_DEFAULTS = new Set(["color"]);
+
+function isObject(value: unknown): value is FormData {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function fillDefaults(data: FormData, defaults: FormData): void {
+  for (const [key, value] of Object.entries(defaults)) {
+    if (isObject(value)) {
+      if (!isObject(data[key])) data[key] = {};
+      fillDefaults(data[key] as FormData, value);
+    } else if (
+      data[key] === undefined &&
+      data[`${key}${ENTITY_SUFFIX}`] === undefined &&
+      !HIDDEN_DEFAULTS.has(key)
+    ) {
+      data[key] = value;
+    }
+  }
+}
+
+function stripDefaults(data: FormData, defaults: FormData): void {
+  for (const [key, value] of Object.entries(data)) {
+    const fallback = defaults[key];
+    if (isObject(value) && isObject(fallback)) {
+      stripDefaults(value, fallback);
+      if (!Object.keys(value).length) delete data[key];
+    } else if (value === undefined || value === "" || value === fallback) {
+      delete data[key];
+    }
+  }
+}
+
+/** Config to form data: border options move to the top level, entity IDs move to their "_entity" field, and defaults fill the gaps. */
 function toFormData(config: BorderCardConfig): FormData {
   const { border, ...rest } = structuredClone(config);
   const { glow, ...borderOptions } = border ?? {};
   // The older glow option shows as the Glow effect, and saving replaces it with effect.
-  const data: FormData = {
-    ...rest,
-    ...borderOptions,
-    effect: borderOptions.effect ?? (glow ? "glow" : "none"),
-  };
+  const data: FormData = { ...rest, ...borderOptions };
+  if (glow && !borderOptions.effect) data.effect = "glow";
   for (const path of BINDABLE_PATHS) {
     const parent = parentOf(data, path, false);
     const key = path[path.length - 1];
@@ -213,10 +251,11 @@ function toFormData(config: BorderCardConfig): FormData {
       delete parent[key];
     }
   }
+  fillDefaults(data, FORM_DEFAULTS);
   return data;
 }
 
-/** Form data to config: the inverse of toFormData. A chosen entity replaces the value. */
+/** Form data to config: the inverse of toFormData. A chosen entity replaces the value, and defaults are left out. */
 function fromFormData(data: FormData): BorderCardConfig {
   const result = structuredClone(data);
   for (const path of BINDABLE_PATHS) {
@@ -227,9 +266,10 @@ function fromFormData(data: FormData): BorderCardConfig {
     delete parent[`${key}${ENTITY_SUFFIX}`];
     if (entity) parent[key] = entity;
   }
+  stripDefaults(result, FORM_DEFAULTS);
   const border: FormData = {};
   for (const key of BORDER_KEYS) {
-    if (result[key] !== undefined && !(key === "effect" && result[key] === "none")) border[key] = result[key];
+    if (result[key] !== undefined) border[key] = result[key];
     delete result[key];
   }
   if (Object.keys(border).length) result.border = border;
