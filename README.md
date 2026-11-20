@@ -103,6 +103,7 @@ npm run build      # writes dist/border-card.js
 npm run watch      # rebuilds on every change
 npm run lint
 npm run typecheck
+npm test           # runs the unit tests
 ```
 
 `dist/` is not committed. CI builds the card on every push and pull request and keeps it as a workflow artifact. Publishing a GitHub release attaches `border-card.js` to it, and HACS installs that file.
