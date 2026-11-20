@@ -306,6 +306,20 @@ function toFormData(config: BorderCardConfig): FormData {
   return data;
 }
 
+/** Removes options that do nothing with the current choices, so they do not linger in the config. */
+function dropUnusedOptions(data: FormData): void {
+  const progress = data.progress as FormData | undefined;
+  if (!progress) return;
+  const path = progress.path ?? DEFAULT_PROGRESS.path;
+  if (path !== "custom") {
+    delete progress.start;
+    delete progress.end;
+  }
+  if (path !== "full") delete progress.start_at;
+  if (path !== "full" && path !== "custom" && progress.ends === "spoke") delete progress.ends;
+  if (progress.track !== "custom") delete progress.track_color;
+}
+
 /** Form data to config: the inverse of toFormData. A chosen entity replaces the value, and defaults are left out. */
 function fromFormData(data: FormData): BorderCardConfig {
   const result = structuredClone(data);
@@ -317,6 +331,7 @@ function fromFormData(data: FormData): BorderCardConfig {
     delete parent[`${key}${ENTITY_SUFFIX}`];
     if (entity) parent[key] = entity;
   }
+  dropUnusedOptions(result);
   stripDefaults(result, FORM_DEFAULTS);
   const border: FormData = {};
   for (const key of BORDER_KEYS) {
