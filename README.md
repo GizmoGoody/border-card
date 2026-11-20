@@ -1,5 +1,7 @@
 # Border Card
 
+![A tile card wrapped in a green border that shows progress around the full border](https://raw.githubusercontent.com/GizmoGoody/border-card/main/images/border-card.png)
+
 A Home Assistant card that wraps any other card in a colored border. The border can also show progress from an entity, drawn as an animated ring with an optional text label.
 
 The wrapped card keeps its own look, size, and behavior, and the border is drawn over its outer edge. Border Card creates it with Home Assistant's own card helpers, so built-in and custom cards both work.
