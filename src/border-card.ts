@@ -27,6 +27,9 @@ import {
 
 registerProgressProperties();
 
+/** Effects drawn by an extra layer that moves around the border. */
+const MOVING_LAYERS: Record<string, string> = { shimmer: "shine", comet: "comet", chase: "chase" };
+
 /** HA's card helpers, loaded once. They create the wrapped card the same way HA's conditional card does. */
 let cardHelpers: CardHelpers | undefined;
 const cardHelpersReady = window.loadCardHelpers?.().then((helpers) => (cardHelpers = helpers));
@@ -169,7 +172,7 @@ export class BorderCard extends LitElement {
         ${visible ? html`<div class="band frame"></div>` : nothing}
         <div class="inner">${this._card}</div>
         ${progress.enabled ? this._renderProgress(thickness) : nothing}
-        ${visible && effect === "shimmer" ? html`<div class="band shine"></div>` : nothing}
+        ${visible && effect in MOVING_LAYERS ? html`<div class="band ${MOVING_LAYERS[effect]}"></div>` : nothing}
       </div>
     `;
   }
