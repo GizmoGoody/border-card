@@ -263,8 +263,9 @@ export class BorderCard extends LitElement {
     const startAngle =
       progress.path === "custom"
         ? num(progress.start, DEFAULT_PROGRESS.start as number)
-        : SIDE_ANGLES[progress.start_at] ?? 0;
-    const endAngle = progress.path === "custom" ? num(progress.end, DEFAULT_PROGRESS.end as number) : startAngle + 360;
+        : (SIDE_ANGLES[progress.start_at] ?? 0);
+    const endAngle =
+      progress.path === "custom" ? num(progress.end, DEFAULT_PROGRESS.end as number) : startAngle + 360;
 
     if (progress.ends === "spoke" && !side) {
       const total = endAngle - startAngle;

@@ -79,7 +79,9 @@ const select = (name: string, label: string, options: [string, string][], helper
   name,
   label,
   helper,
-  selector: { select: { mode: "dropdown", options: options.map(([value, text]) => ({ value, label: text })) } },
+  selector: {
+    select: { mode: "dropdown", options: options.map(([value, text]) => ({ value, label: text })) },
+  },
 });
 
 const SIDES: [string, string][] = [
@@ -109,7 +111,13 @@ function pathSchema(path: string): SchemaItem[] {
     ...(path === "full" ? [select("start_at", "Start at", SIDES)] : []),
     ...(path === "custom"
       ? [
-          number("start", "Start angle", { min: 0, max: 359, step: 1, mode: "box", unit_of_measurement: "°" }),
+          number("start", "Start angle", {
+            min: 0,
+            max: 359,
+            step: 1,
+            mode: "box",
+            unit_of_measurement: "°",
+          }),
           number("end", "End angle", { min: 1, max: 360, step: 1, mode: "box", unit_of_measurement: "°" }),
         ]
       : []),
@@ -299,7 +307,11 @@ function toFormData(config: BorderCardConfig): FormData {
   }
   // Configs from before the path option set only angles, so angles alone mean a custom path.
   const progress = data.progress as FormData | undefined;
-  if (progress && progress.path === undefined && ["start", "end"].some((k) => progress[k] ?? progress[k + ENTITY_SUFFIX])) {
+  if (
+    progress &&
+    progress.path === undefined &&
+    ["start", "end"].some((k) => progress[k] ?? progress[k + ENTITY_SUFFIX])
+  ) {
     progress.path = "custom";
   }
   fillDefaults(data, FORM_DEFAULTS);
