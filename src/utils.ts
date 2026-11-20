@@ -88,8 +88,6 @@ export function resolveConfig(config: BorderCardConfig): ResolvedConfig {
     border: { ...DEFAULT_BORDER, ...config.border },
     progress: {
       ...DEFAULT_PROGRESS,
-      // Configs from before the path option set only angles, so angles alone mean a custom path.
-      path: progress.start !== undefined || progress.end !== undefined ? "custom" : DEFAULT_PROGRESS.path,
       ...progress,
       text: { ...DEFAULT_PROGRESS.text, ...text },
     },

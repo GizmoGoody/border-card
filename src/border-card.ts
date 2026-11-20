@@ -189,7 +189,7 @@ export class BorderCard extends LitElement {
 
     const thickness = Math.max(0, resolveNumber(border.thickness, this._hass, 0));
     const color = this._borderColor();
-    const effect = border.effect ?? (border.glow ? "glow" : "none");
+    const effect = border.effect ?? "none";
     const visible = thickness > 0;
 
     // With progress on, the ring draws the whole border (fill and track), so the base stays empty.
