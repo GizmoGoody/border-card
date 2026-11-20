@@ -54,7 +54,7 @@ card:
 | `progress.start`         | `0`              | Start angle in degrees. `0` is the top.                                                                                            |
 | `progress.end`           | `360`            | End angle in degrees.                                                                                                              |
 | `progress.direction`     | `clockwise`      | `clockwise` fills from the start angle. `counterclockwise` fills from the end angle back toward the start.                         |
-| `progress.track`         | `none`           | The unfilled part of the border: `none` (transparent), `match` (dimmed border color), or `custom` (dimmed `track_color`).          |
+| `progress.track`         | `none`           | The unfilled part of the range: `none` (transparent), `match` (dimmed border color), or `custom` (dimmed `track_color`).           |
 | `progress.track_color`   |                  | The track color when `track` is `custom`.                                                                                          |
 | `progress.text.enabled`  | `true`           | Shows a text label.                                                                                                                |
 | `progress.text.position` | `bottom-right`   | `top-left`, `top-center`, `top-right`, `center-left`, `center`, `center-right`, `bottom-left`, `bottom-center`, or `bottom-right`. |

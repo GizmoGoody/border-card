@@ -92,13 +92,8 @@ export class BorderCard extends LitElement {
     const thickness = Number(border.thickness) || 0;
     const color = computeCssColor(border.color);
 
-    let base = color;
-    if (progress.enabled) {
-      if (progress.track === "match") base = dimColor(color);
-      else if (progress.track === "custom")
-        base = dimColor(computeCssColor(progress.track_color ?? border.color));
-      else base = "transparent";
-    }
+    // With progress on, the ring draws the whole border (fill and track), so the base stays empty.
+    const base = progress.enabled ? "transparent" : color;
 
     return html`
       <div
@@ -119,24 +114,32 @@ export class BorderCard extends LitElement {
     `;
   }
 
+  private _trackColor(): string {
+    const { border, progress } = this._config!;
+    if (progress.track === "match") return dimColor(computeCssColor(border.color));
+    if (progress.track === "custom") return dimColor(computeCssColor(progress.track_color ?? border.color));
+    return "transparent";
+  }
+
   private _renderProgress(thickness: number) {
     const progress = this._config!.progress;
     const stateObj = progress.entity ? this._hass?.states[progress.entity] : undefined;
     const percent = computePercent(progress, stateObj);
 
-    // The arc always stays inside start..end. Clockwise grows from the start, counterclockwise from the end.
+    // The fill and the track stay inside start..end. Clockwise grows from the start, counterclockwise from the end.
     const total = progress.end - progress.start;
     const fill = (percent / 100) * total;
-    const from = progress.direction === "counterclockwise" ? progress.end - fill : progress.start;
 
     const { text } = progress;
     return html`
       ${
         thickness > 0
           ? html`<div
-              class="ring"
+              class=${classMap({ ring: true, ccw: progress.direction === "counterclockwise" })}
               style=${styleMap({
-                "--border-card-from": `${from}deg`,
+                "--bc-start": `${progress.start}deg`,
+                "--bc-total": `${total}deg`,
+                "--bc-track": this._trackColor(),
                 "--border-card-fill": `${fill}deg`,
               })}
             ></div>`
