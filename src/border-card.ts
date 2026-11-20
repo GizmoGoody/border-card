@@ -285,7 +285,7 @@ export class BorderCard extends LitElement {
     if (!box || !box.width || !box.height) return nothing;
     const rounded = progress.ends === "round";
     const path = side
-      ? sidePath(side, box.width, box.height, thickness, rounded)
+      ? sidePath(side, box.width, box.height, thickness)
       : outlinePath(box.width, box.height, thickness, box.radius);
 
     let from = 0;
