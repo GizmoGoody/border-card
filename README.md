@@ -61,6 +61,22 @@ card:
 | `progress.text.template` | `{value}%`       | `{value}` is the progress percentage, `{state}` is the entity state, and `{attribute_name}` is any attribute.                      |
 | `progress.text.color`    | theme text color | A theme color name or any CSS color.                                                                                               |
 
+### Values from entities
+
+Any number option (`border.thickness`, `progress.start`, `progress.end`, `progress.min_value`, `progress.max_value`) also takes an entity ID, such as an `input_number`. The card then uses that entity's state.
+
+Any color option (`border.color`, `progress.track_color`, `progress.text.color`) also takes an entity ID, such as an `input_text`. The entity's state can be a theme color name (`red`, `primary`), any CSS color (`transparent`, `#ff9800`, `rgb(255, 152, 0)`, `hsl(36, 100%, 50%)`), or three numbers (`255, 152, 0`). When the state is not a color, the card uses the default color.
+
+```yaml
+type: custom:border-card
+border:
+  color: input_text.border_color
+  thickness: input_number.border_thickness
+card:
+  type: tile
+  entity: light.kitchen
+```
+
 ## Development
 
 ```sh
