@@ -39,7 +39,7 @@ const BINDABLE_PATHS = [
   ["progress", "track_color"],
   ["progress", "text", "color"],
 ];
-const BORDER_KEYS = ["color", "thickness", "glow"];
+const BORDER_KEYS = ["color", "thickness", "effect"];
 
 const POSITIONS = [
   ["top-left", "Top left"],
@@ -91,7 +91,22 @@ function buildSchema(customTrack: boolean): SchemaItem[] {
           { min: 0, max: 50, step: 1, unit_of_measurement: "px" },
           "Set to 0 to disable the border",
         ),
-        { name: "glow", label: "Glow effect", selector: { boolean: {} } },
+        {
+          name: "effect",
+          label: "Effect",
+          selector: {
+            select: {
+              mode: "dropdown",
+              options: [
+                { value: "none", label: "None" },
+                { value: "glow", label: "Glow" },
+                { value: "pulse", label: "Pulse" },
+                { value: "shimmer", label: "Shimmer" },
+                { value: "rainbow", label: "Rainbow" },
+              ],
+            },
+          },
+        },
         {
           type: "expandable",
           name: "progress",
@@ -183,7 +198,13 @@ function parentOf(data: FormData, path: string[], create: boolean): FormData | u
 /** Config to form data: border options move to the top level, and entity IDs move to their "_entity" field. */
 function toFormData(config: BorderCardConfig): FormData {
   const { border, ...rest } = structuredClone(config);
-  const data: FormData = { ...rest, ...border };
+  const { glow, ...borderOptions } = border ?? {};
+  // The older glow option shows as the Glow effect, and saving replaces it with effect.
+  const data: FormData = {
+    ...rest,
+    ...borderOptions,
+    effect: borderOptions.effect ?? (glow ? "glow" : "none"),
+  };
   for (const path of BINDABLE_PATHS) {
     const parent = parentOf(data, path, false);
     const key = path[path.length - 1];
@@ -208,7 +229,7 @@ function fromFormData(data: FormData): BorderCardConfig {
   }
   const border: FormData = {};
   for (const key of BORDER_KEYS) {
-    if (result[key] !== undefined) border[key] = result[key];
+    if (result[key] !== undefined && !(key === "effect" && result[key] === "none")) border[key] = result[key];
     delete result[key];
   }
   if (Object.keys(border).length) result.border = border;

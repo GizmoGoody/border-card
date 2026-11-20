@@ -45,7 +45,7 @@ card:
 | `card`                   | required         | The card to wrap. Any card configuration works.                                                                                    |
 | `border.color`           | `#03a9f4`        | A theme color name (for example `primary` or `red`) or any CSS color.                                                              |
 | `border.thickness`       | `4`              | Border width in pixels. `0` disables the border.                                                                                   |
-| `border.glow`            | `false`          | Adds a glow in the border color.                                                                                                   |
+| `border.effect`          | `none`           | `none`, `glow`, `pulse` (breathing glow), `shimmer` (light runs around the border), or `rainbow` (cycles colors).                  |
 | `progress.enabled`       | `false`          | Shows the border as a progress ring.                                                                                               |
 | `progress.entity`        |                  | The entity that provides the value.                                                                                                |
 | `progress.attribute`     |                  | Use this attribute instead of the entity state.                                                                                    |
@@ -60,6 +60,8 @@ card:
 | `progress.text.position` | `bottom-right`   | `top-left`, `top-center`, `top-right`, `center-left`, `center`, `center-right`, `bottom-left`, `bottom-center`, or `bottom-right`. |
 | `progress.text.template` | `{value}%`       | `{value}` is the progress percentage, `{state}` is the entity state, and `{attribute_name}` is any attribute.                      |
 | `progress.text.color`    | theme text color | A theme color name or any CSS color.                                                                                               |
+
+`border.glow: true` from earlier versions still works and is the same as `effect: glow`.
 
 ### Values from entities
 

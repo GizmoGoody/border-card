@@ -107,6 +107,8 @@ export class BorderCard extends LitElement {
 
     const thickness = Math.max(0, resolveNumber(border.thickness, this._hass, 0));
     const color = this._borderColor();
+    const effect = border.effect ?? (border.glow ? "glow" : "none");
+    const visible = thickness > 0;
 
     // With progress on, the ring draws the whole border (fill and track), so the base stays empty.
     const base = progress.enabled ? "transparent" : color;
@@ -115,8 +117,8 @@ export class BorderCard extends LitElement {
       <div
         class=${classMap({
           container: true,
-          glow: border.glow && thickness > 0,
-          "no-border": thickness === 0,
+          "no-border": !visible,
+          [`effect-${effect}`]: visible,
         })}
         style=${styleMap({
           "--bc-color": color,
@@ -124,8 +126,10 @@ export class BorderCard extends LitElement {
           "--bc-base": base,
         })}
       >
+        ${visible ? html`<div class="band frame"></div>` : nothing}
         <div class="inner">${this._card}</div>
         ${progress.enabled ? this._renderProgress(thickness) : nothing}
+        ${visible && effect === "shimmer" ? html`<div class="band shine"></div>` : nothing}
       </div>
     `;
   }
@@ -160,7 +164,7 @@ export class BorderCard extends LitElement {
       ${
         thickness > 0
           ? html`<div
-              class=${classMap({ ring: true, ccw: progress.direction === "counterclockwise" })}
+              class=${classMap({ band: true, ring: true, ccw: progress.direction === "counterclockwise" })}
               style=${styleMap({
                 "--bc-start": `${start}deg`,
                 "--bc-total": `${total}deg`,
