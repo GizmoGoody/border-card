@@ -94,22 +94,16 @@ export function outlinePath(width: number, height: number, thickness: number, ra
 /**
  * A straight line along one side, drawn in the clockwise direction for that side
  * (left to right on top, top to bottom on the right, right to left on the bottom, bottom to top on the left).
- * Rounded ends are pulled in by half the thickness so the caps stay inside the card.
+ * The line runs the full length of the side, and the card's rounded corners clip its ends,
+ * so it follows the theme's corner radius without bending.
  */
-export function sidePath(
-  side: Side,
-  width: number,
-  height: number,
-  thickness: number,
-  rounded: boolean,
-): StrokePath {
+export function sidePath(side: Side, width: number, height: number, thickness: number): StrokePath {
   const h = thickness / 2;
-  const e = rounded ? h : 0;
   const points: Record<Side, [number, number, number, number]> = {
-    top: [e, h, width - e, h],
-    right: [width - h, e, width - h, height - e],
-    bottom: [width - e, height - h, e, height - h],
-    left: [h, height - e, h, e],
+    top: [0, h, width, h],
+    right: [width - h, 0, width - h, height],
+    bottom: [width, height - h, 0, height - h],
+    left: [h, height, h, 0],
   };
   const [x0, y0, x1, y1] = points[side];
   return strokePath(`M${x0} ${y0}L${x1} ${y1}`, [line(x0, y0, x1, y1)], width, height);
