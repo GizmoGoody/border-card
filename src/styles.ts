@@ -219,6 +219,10 @@ export const cardStyles = css`
 
   .ring {
     z-index: 2;
+  }
+
+  /* Spoke ends: a gradient around the center, so the ends point at the center of the card. */
+  .ring.spoke {
     /* A stop position of 0 snaps to the previous stop, so each color starts where the last one ends. */
     background: conic-gradient(
       from var(--bc-start),
@@ -229,13 +233,29 @@ export const cardStyles = css`
     transition: --border-card-fill 0.5s ease;
   }
 
-  .ring.ccw {
+  .ring.spoke.ccw {
     background: conic-gradient(
       from var(--bc-start),
       var(--bc-track) 0 calc(var(--bc-total) - var(--border-card-fill)),
       var(--bc-color) 0 var(--bc-total),
       transparent 0
     );
+  }
+
+  /* Straight and rounded ends: a stroke along the middle of the border. */
+  svg.ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  svg.ring path {
+    fill: none;
+    transition:
+      stroke-dasharray 0.5s ease,
+      stroke-dashoffset 0.5s ease;
   }
 
   .text {
@@ -291,7 +311,8 @@ export const cardStyles = css`
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ring {
+    .ring,
+    svg.ring path {
       transition: none;
     }
     .container,

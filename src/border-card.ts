@@ -1,9 +1,10 @@
-import { LitElement, html, nothing } from "lit";
-import { property, state } from "lit/decorators.js";
+import { LitElement, html, nothing, svg } from "lit";
+import { property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import "./border-card-editor";
 import { CARD_TYPE, CARD_VERSION, DEFAULT_BORDER, DEFAULT_PROGRESS, DOCS_URL, EDITOR_TYPE } from "./const";
+import { SIDE_ANGLES, dash, outlinePath, sidePath } from "./progress-path";
 import { cardStyles, registerProgressProperties } from "./styles";
 import type {
   BorderCardConfig,
@@ -56,6 +57,13 @@ export class BorderCard extends LitElement {
 
   private _entities: string[] = [];
 
+  /** The card's size and corner radius, which the straight and rounded progress strokes are drawn to. */
+  @state() private _box?: { width: number; height: number; radius: number };
+
+  @query(".container") private _container?: HTMLElement;
+
+  private _resizeObserver?: ResizeObserver;
+
   static getConfigElement(): HTMLElement {
     return document.createElement(EDITOR_TYPE);
   }
@@ -106,6 +114,37 @@ export class BorderCard extends LitElement {
     const own = this._card?.getGridOptions?.() ?? {};
     const configured = (this._cardConfig?.grid_options as LovelaceGridOptions | undefined) ?? {};
     return { ...own, ...configured };
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    if (this.hasUpdated) this._observeSize();
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this._resizeObserver?.disconnect();
+  }
+
+  protected firstUpdated(): void {
+    this._observeSize();
+  }
+
+  private _observeSize(): void {
+    this._resizeObserver ??= new ResizeObserver(() => this._measure());
+    if (this._container) this._resizeObserver.observe(this._container);
+  }
+
+  private _measure(): void {
+    const el = this._container;
+    if (!el) return;
+    const width = el.offsetWidth;
+    const height = el.offsetHeight;
+    const radius = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
+    const box = this._box;
+    if (!box || box.width !== width || box.height !== height || box.radius !== radius) {
+      this._box = { width, height, radius };
+    }
   }
 
   protected updated(): void {
@@ -197,26 +236,9 @@ export class BorderCard extends LitElement {
     const max = num(progress.max_value, DEFAULT_PROGRESS.max_value as number);
     const percent = stateObj ? computePercent(raw, min, max) : 0;
 
-    // The fill and the track stay inside start..end. Clockwise grows from the start, counterclockwise from the end.
-    const start = num(progress.start, DEFAULT_PROGRESS.start as number);
-    const total = num(progress.end, DEFAULT_PROGRESS.end as number) - start;
-    const fill = (percent / 100) * total;
-
     const { text } = progress;
     return html`
-      ${
-        thickness > 0
-          ? html`<div
-              class=${classMap({ band: true, ring: true, ccw: progress.direction === "counterclockwise" })}
-              style=${styleMap({
-                "--bc-start": `${start}deg`,
-                "--bc-total": `${total}deg`,
-                "--bc-track": this._trackColor(),
-                "--border-card-fill": `${fill}deg`,
-              })}
-            ></div>`
-          : nothing
-      }
+      ${thickness > 0 ? this._renderRing(thickness, percent, num) : nothing}
       ${
         text.enabled
           ? html`<div
@@ -228,6 +250,72 @@ export class BorderCard extends LitElement {
           : nothing
       }
     `;
+  }
+
+  /**
+   * The fill and the track. Clockwise grows from the start, counterclockwise from the end.
+   * Spoke ends use a gradient around the center; straight and rounded ends use a stroke along the border.
+   */
+  private _renderRing(thickness: number, percent: number, num: (v: number | string, f: number) => number) {
+    const { progress } = this._config!;
+    const ccw = progress.direction === "counterclockwise";
+    const side = progress.path !== "full" && progress.path !== "custom" ? progress.path : undefined;
+    const startAngle =
+      progress.path === "custom"
+        ? num(progress.start, DEFAULT_PROGRESS.start as number)
+        : SIDE_ANGLES[progress.start_at] ?? 0;
+    const endAngle = progress.path === "custom" ? num(progress.end, DEFAULT_PROGRESS.end as number) : startAngle + 360;
+
+    if (progress.ends === "spoke" && !side) {
+      const total = endAngle - startAngle;
+      return html`<div
+        class=${classMap({ band: true, ring: true, spoke: true, ccw })}
+        style=${styleMap({
+          "--bc-start": `${startAngle}deg`,
+          "--bc-total": `${total}deg`,
+          "--bc-track": this._trackColor(),
+          "--border-card-fill": `${(percent / 100) * total}deg`,
+        })}
+      ></div>`;
+    }
+
+    const box = this._box;
+    if (!box || !box.width || !box.height) return nothing;
+    const rounded = progress.ends === "round";
+    const path = side
+      ? sidePath(side, box.width, box.height, thickness, rounded)
+      : outlinePath(box.width, box.height, thickness, box.radius);
+
+    let from = 0;
+    let range = path.length;
+    if (!side) {
+      from = path.lengthAtAngle(startAngle);
+      if (progress.path === "custom") {
+        range = path.lengthAtAngle(endAngle) - from;
+        if (range <= 0) range += path.length;
+      }
+    }
+    const filled = (percent / 100) * range;
+    const fillFrom = ccw ? from + range - filled : from;
+    const stroke = {
+      "stroke-width": `${thickness}px`,
+      "stroke-linecap": rounded ? "round" : "butt",
+    };
+
+    return html`<svg class="ring" viewBox="0 0 ${box.width} ${box.height}" aria-hidden="true">
+      <path
+        d=${path.d}
+        style=${styleMap({ ...stroke, ...dash(from, range, path.length), stroke: this._trackColor() })}
+      ></path>
+      ${
+        filled > 0.5
+          ? svg`<path
+              d=${path.d}
+              style=${styleMap({ ...stroke, ...dash(fillFrom, filled, path.length), stroke: "var(--bc-color)" })}
+            ></path>`
+          : nothing
+      }
+    </svg>`;
   }
 }
 

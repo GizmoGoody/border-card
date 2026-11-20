@@ -17,6 +17,9 @@ export const DEFAULT_PROGRESS: ProgressOptions = {
   end: 360,
   min_value: 0,
   max_value: 100,
+  path: "full",
+  start_at: "top",
+  ends: "straight",
   direction: "clockwise",
   track: "none",
   text: {
