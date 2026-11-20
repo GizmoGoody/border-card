@@ -2,7 +2,7 @@
 
 A Home Assistant card that wraps any other card in a colored border. The border can also show progress from an entity, drawn as an animated ring with an optional text label.
 
-The wrapped card keeps its own look and behavior. Border Card uses Home Assistant's own card container to load it, so built-in and custom cards both work.
+The wrapped card keeps its own look, size, and behavior, and the border is drawn over its outer edge. Border Card creates it with Home Assistant's own card helpers, so built-in and custom cards both work.
 
 ## Installation
 
@@ -64,7 +64,6 @@ card:
 | `progress.text.template` | `{value}%`       | `{value}` is the progress percentage, `{state}` is the entity state, and `{attribute_name}` is any attribute.                      |
 | `progress.text.color`    | theme text color | A theme color name or any CSS color.                                                                                               |
 
-A config with only `progress.start` and `progress.end` from earlier versions uses the `custom` path. `border.glow: true` from earlier versions still works and is the same as `effect: glow`.
 
 ### Effects
 
