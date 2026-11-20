@@ -1,3 +1,4 @@
+import { printBadge } from "@gizmogoody/card-badge";
 import { LitElement, html, nothing, svg } from "lit";
 import { property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
@@ -326,12 +327,14 @@ if (!customElements.get(CARD_TYPE)) {
   window.customCards.push({
     type: CARD_TYPE,
     name: "Border Card",
-    description: "Wraps any card in a configurable border with an optional progress ring.",
+    description: "Wraps any card in a configurable border.",
     documentationURL: DOCS_URL,
   });
-  console.info(
-    `%c BORDER-CARD %c ${CARD_VERSION} `,
-    "color: orange; font-weight: bold; background: black",
-    "color: white; font-weight: bold; background: dimgray",
-  );
+  printBadge({
+    icon: "🔲",
+    name: "Border Card",
+    version: CARD_VERSION,
+    description: "Wraps any card in a configurable border.",
+    repo: "border-card",
+  });
 }

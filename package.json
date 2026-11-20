@@ -1,7 +1,7 @@
 {
   "name": "border-card",
   "version": "1.0.0",
-  "description": "Home Assistant card that wraps any card in a configurable border with an optional progress ring.",
+  "description": "Wraps any card in a configurable border.",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -15,6 +15,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@gizmogoody/card-badge": "github:GizmoGoody/card-badge#v1.0.0",
     "@mdi/js": "^7.4.47",
     "lit": "^3.2.1"
   },
