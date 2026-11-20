@@ -52,8 +52,6 @@ export interface BorderOptions {
   color: ColorValue;
   thickness: NumberValue;
   effect?: Effect;
-  /** Older option, the same as effect: glow. */
-  glow?: boolean;
 }
 
 export interface TextOptions {

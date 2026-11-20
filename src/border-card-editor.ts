@@ -293,10 +293,7 @@ function stripDefaults(data: FormData, defaults: FormData): void {
 /** Config to form data: border options move to the top level, entity IDs move to their "_entity" field, and defaults fill the gaps. */
 function toFormData(config: BorderCardConfig): FormData {
   const { border, ...rest } = structuredClone(config);
-  const { glow, ...borderOptions } = border ?? {};
-  // The older glow option shows as the Glow effect, and saving replaces it with effect.
-  const data: FormData = { ...rest, ...borderOptions };
-  if (glow && !borderOptions.effect) data.effect = "glow";
+  const data: FormData = { ...rest, ...border };
   for (const path of BINDABLE_PATHS) {
     const parent = parentOf(data, path, false);
     const key = path[path.length - 1];
@@ -304,15 +301,6 @@ function toFormData(config: BorderCardConfig): FormData {
       parent[`${key}${ENTITY_SUFFIX}`] = parent[key];
       delete parent[key];
     }
-  }
-  // Configs from before the path option set only angles, so angles alone mean a custom path.
-  const progress = data.progress as FormData | undefined;
-  if (
-    progress &&
-    progress.path === undefined &&
-    ["start", "end"].some((k) => progress[k] ?? progress[k + ENTITY_SUFFIX])
-  ) {
-    progress.path = "custom";
   }
   fillDefaults(data, FORM_DEFAULTS);
   return data;

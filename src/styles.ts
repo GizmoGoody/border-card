@@ -25,7 +25,6 @@ export const cardStyles = css`
     position: relative;
     box-sizing: border-box;
     height: 100%;
-    padding: var(--bc-thickness);
     border-radius: var(--bc-radius);
     box-shadow: var(--ha-card-box-shadow, 0 2px 6px rgba(0, 0, 0, 0.2));
     overflow: hidden;
@@ -131,7 +130,6 @@ export const cardStyles = css`
   }
 
   .container.no-border {
-    padding: 0;
     box-shadow: none;
   }
 
@@ -153,6 +151,7 @@ export const cardStyles = css`
   }
 
   .frame {
+    z-index: 2;
     background: var(--bc-base);
   }
 
@@ -196,22 +195,23 @@ export const cardStyles = css`
     }
   }
 
-  /* Concentric corners: the inner radius is the outer radius minus the border thickness. */
+  /*
+   * The wrapped card keeps its full size, so its content sits exactly where it would without the border.
+   * The border layers are drawn over its outer edge.
+   */
   .inner {
-    --bc-inner-radius: max(0px, calc(var(--bc-radius) - var(--bc-thickness)));
     position: relative;
     z-index: 1;
     height: 100%;
-    border-radius: var(--bc-inner-radius);
+    border-radius: var(--bc-radius);
     overflow: hidden;
     background: var(--ha-card-background, var(--card-background-color, white));
     /* Inherited by the wrapped card's ha-card. */
-    --ha-card-border-radius: var(--bc-inner-radius);
+    --ha-card-border-radius: var(--bc-radius);
     --ha-card-box-shadow: none;
     --ha-card-border-width: 0;
   }
 
-  /* The wrapped card fills the space inside the border, so its content stays centered like an unwrapped card. */
   .inner > * {
     display: block;
     height: 100%;

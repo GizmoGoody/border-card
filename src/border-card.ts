@@ -1,3 +1,4 @@
+import { printBadge } from "@gizmogoody/card-badge";
 import { LitElement, html, nothing, svg } from "lit";
 import { property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
@@ -189,7 +190,7 @@ export class BorderCard extends LitElement {
 
     const thickness = Math.max(0, resolveNumber(border.thickness, this._hass, 0));
     const color = this._borderColor();
-    const effect = border.effect ?? (border.glow ? "glow" : "none");
+    const effect = border.effect ?? "none";
     const visible = thickness > 0;
 
     // With progress on, the ring draws the whole border (fill and track), so the base stays empty.
@@ -326,12 +327,14 @@ if (!customElements.get(CARD_TYPE)) {
   window.customCards.push({
     type: CARD_TYPE,
     name: "Border Card",
-    description: "Wraps any card in a configurable border with an optional progress ring.",
+    description: "Wraps any card in a configurable border.",
     documentationURL: DOCS_URL,
   });
-  console.info(
-    `%c BORDER-CARD %c ${CARD_VERSION} `,
-    "color: orange; font-weight: bold; background: black",
-    "color: white; font-weight: bold; background: dimgray",
-  );
+  printBadge({
+    icon: "🔲",
+    name: "Border Card",
+    version: CARD_VERSION,
+    description: "Wraps any card in a configurable border.",
+    repo: "border-card",
+  });
 }
