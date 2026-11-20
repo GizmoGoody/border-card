@@ -51,9 +51,12 @@ card:
 | `progress.attribute`     |                  | Use this attribute instead of the entity state.                                                                                    |
 | `progress.min_value`     | `0`              | The value that shows an empty ring.                                                                                                |
 | `progress.max_value`     | `100`            | The value that shows a full ring.                                                                                                  |
-| `progress.start`         | `0`              | Start angle in degrees. `0` is the top.                                                                                            |
-| `progress.end`           | `360`            | End angle in degrees.                                                                                                              |
-| `progress.direction`     | `clockwise`      | `clockwise` fills from the start angle. `counterclockwise` fills from the end angle back toward the start.                         |
+| `progress.path`          | `full`           | `full` (whole border), `top`, `right`, `bottom`, `left` (one edge), or `custom` (between `start` and `end`).                       |
+| `progress.start_at`      | `top`            | Where a `full` path starts: `top`, `right`, `bottom`, or `left`.                                                                   |
+| `progress.start`         | `0`              | Start angle in degrees for a `custom` path. `0` is the top.                                                                        |
+| `progress.end`           | `360`            | End angle in degrees for a `custom` path.                                                                                          |
+| `progress.ends`          | `straight`       | `straight` (cut straight across the border), `round`, or `spoke` (point at the center; `full` and `custom` only).                  |
+| `progress.direction`     | `clockwise`      | `clockwise` or `counterclockwise`. Clockwise runs left to right on the top edge and top to bottom on the right edge.               |
 | `progress.track`         | `none`           | The unfilled part of the range: `none` (transparent), `match` (dimmed border color), or `custom` (dimmed `track_color`).           |
 | `progress.track_color`   |                  | The track color when `track` is `custom`.                                                                                          |
 | `progress.text.enabled`  | `true`           | Shows a text label.                                                                                                                |
@@ -61,7 +64,7 @@ card:
 | `progress.text.template` | `{value}%`       | `{value}` is the progress percentage, `{state}` is the entity state, and `{attribute_name}` is any attribute.                      |
 | `progress.text.color`    | theme text color | A theme color name or any CSS color.                                                                                               |
 
-`border.glow: true` from earlier versions still works and is the same as `effect: glow`.
+A config with only `progress.start` and `progress.end` from earlier versions uses the `custom` path. `border.glow: true` from earlier versions still works and is the same as `effect: glow`.
 
 ### Effects
 

@@ -24,6 +24,11 @@ export interface LovelaceGridOptions {
 
 export type Direction = "clockwise" | "counterclockwise";
 export type Track = "none" | "match" | "custom";
+export type Side = "top" | "right" | "bottom" | "left";
+/** Where the progress runs: around the whole border, along one side, or between two angles. */
+export type ProgressPath = "full" | Side | "custom";
+/** How the ends of the progress look: cut straight across the border, rounded, or pointing at the center. */
+export type Ends = "straight" | "round" | "spoke";
 export type Effect =
   "none" | "glow" | "pulse" | "breathe" | "flicker" | "shimmer" | "comet" | "chase" | "rainbow";
 export type TextPosition =
@@ -66,6 +71,10 @@ export interface ProgressOptions {
   attribute?: string;
   min_value: NumberValue;
   max_value: NumberValue;
+  path: ProgressPath;
+  /** Where a full-border path starts. */
+  start_at: Side;
+  ends: Ends;
   direction: Direction;
   track: Track;
   track_color?: ColorValue;

@@ -75,7 +75,66 @@ const number = (name: string, label: string, options: Record<string, unknown>, h
 const color = (name: string, label: string, helper?: string) =>
   withEntity({ name, label, helper, selector: { ui_color: {} } }, COLOR_DOMAINS);
 
-function buildSchema(customTrack: boolean): SchemaItem[] {
+const select = (name: string, label: string, options: [string, string][], helper?: string): SchemaItem => ({
+  name,
+  label,
+  helper,
+  selector: {
+    select: { mode: "dropdown", options: options.map(([value, text]) => ({ value, label: text })) },
+  },
+});
+
+const SIDES: [string, string][] = [
+  ["top", "Top"],
+  ["right", "Right"],
+  ["bottom", "Bottom"],
+  ["left", "Left"],
+];
+
+/** The progress fields that depend on the chosen path. */
+function pathSchema(path: string): SchemaItem[] {
+  const ends: [string, string][] = [
+    ["straight", "Straight"],
+    ["round", "Rounded"],
+  ];
+  // Spoke ends point at the center of the card, which only makes sense around the border.
+  if (path === "full" || path === "custom") ends.push(["spoke", "Spoke"]);
+  return [
+    select("path", "Path", [
+      ["full", "Full border"],
+      ["top", "Top edge"],
+      ["right", "Right edge"],
+      ["bottom", "Bottom edge"],
+      ["left", "Left edge"],
+      ["custom", "Custom angles"],
+    ]),
+    ...(path === "full" ? [select("start_at", "Start at", SIDES)] : []),
+    ...(path === "custom"
+      ? [
+          number("start", "Start angle", {
+            min: 0,
+            max: 359,
+            step: 1,
+            mode: "box",
+            unit_of_measurement: "°",
+          }),
+          number("end", "End angle", { min: 1, max: 360, step: 1, mode: "box", unit_of_measurement: "°" }),
+        ]
+      : []),
+    select(
+      "direction",
+      "Direction",
+      [
+        ["clockwise", "Clockwise"],
+        ["counterclockwise", "Counterclockwise"],
+      ],
+      "Clockwise runs left to right on the top edge and top to bottom on the right edge",
+    ),
+    select("ends", "Ends", ends),
+  ];
+}
+
+function buildSchema(customTrack: boolean, path: string): SchemaItem[] {
   return [
     {
       type: "expandable",
@@ -124,23 +183,9 @@ function buildSchema(customTrack: boolean): SchemaItem[] {
               helper: "Optional: use an entity attribute instead of the state",
               selector: { text: {} },
             },
-            number("start", "Start angle", { min: 0, max: 359, step: 1, unit_of_measurement: "°" }),
-            number("end", "End angle", { min: 1, max: 360, step: 1, unit_of_measurement: "°" }),
             number("min_value", "Minimum value", { step: 0.1, mode: "box" }),
             number("max_value", "Maximum value", { step: 0.1, mode: "box" }),
-            {
-              name: "direction",
-              label: "Direction",
-              selector: {
-                select: {
-                  mode: "dropdown",
-                  options: [
-                    { value: "clockwise", label: "Clockwise" },
-                    { value: "counterclockwise", label: "Counterclockwise" },
-                  ],
-                },
-              },
-            },
+            ...pathSchema(path),
             {
               name: "track",
               label: "Track",
@@ -185,8 +230,13 @@ function buildSchema(customTrack: boolean): SchemaItem[] {
   ];
 }
 
-const SCHEMA = buildSchema(false);
-const SCHEMA_CUSTOM_TRACK = buildSchema(true);
+/** Schemas are cached so ha-form only rebuilds when the visible fields change. */
+const schemaCache = new Map<string, SchemaItem[]>();
+function schemaFor(customTrack: boolean, path: string): SchemaItem[] {
+  const key = `${customTrack}|${path}`;
+  if (!schemaCache.has(key)) schemaCache.set(key, buildSchema(customTrack, path));
+  return schemaCache.get(key)!;
+}
 
 /** Returns the object that holds the last key of a path, creating it when asked. */
 function parentOf(data: FormData, path: string[], create: boolean): FormData | undefined {
@@ -254,6 +304,15 @@ function toFormData(config: BorderCardConfig): FormData {
       parent[`${key}${ENTITY_SUFFIX}`] = parent[key];
       delete parent[key];
     }
+  }
+  // Configs from before the path option set only angles, so angles alone mean a custom path.
+  const progress = data.progress as FormData | undefined;
+  if (
+    progress &&
+    progress.path === undefined &&
+    ["start", "end"].some((k) => progress[k] ?? progress[k + ENTITY_SUFFIX])
+  ) {
+    progress.path = "custom";
   }
   fillDefaults(data, FORM_DEFAULTS);
   return data;
@@ -341,7 +400,7 @@ export class BorderCardEditor extends LitElement {
     if (!this.hass || !this._config) return nothing;
     const data = toFormData(this._config);
     const progress = data.progress as FormData | undefined;
-    const schema = progress?.track === "custom" ? SCHEMA_CUSTOM_TRACK : SCHEMA;
+    const schema = schemaFor(progress?.track === "custom", String(progress?.path ?? "full"));
     const picking = this._picking || !this._config.card;
 
     return html`
